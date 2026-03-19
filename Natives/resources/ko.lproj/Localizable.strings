@@ -176,6 +176,7 @@
 "preference.profile.title.default_touch_control" = "터치 컨트롤";
 "preference.profile.title.default_gamepad_control" = "게임패드 컨트롤";
 "profile.section.instance" = "게임 인스턴스 설정";
+"profile.title.separate_preference" = "설정 격리";
 "profile.title.install_fabric_quilt" = "Fabric/Quilt 설치";
 
 "controller_configurator.title.current" = "게임패드 구성 파일";
