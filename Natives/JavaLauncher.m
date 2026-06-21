@@ -125,7 +125,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
                 }
             }
             [NSFileManager.defaultManager copyItemAtPath:inBundleScriptPath toPath:[NSString stringWithFormat:@"%s/UniversalJIT26.js", getenv("POJAV_HOME")] error:nil];
-            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. To import it, long-press on Amethyst when enabling JIT in StikDebug and tap \"Assign Script\", then go to Amethyst's Documents directory and pick it. (on sideloaded StikDebug, the builtin script is named Amethyst-MeloNX.js)");
+            showDialog(localize(@"Error", nil), @"Support for legacy script has been removed. Please switch to Universal JIT script. To import it, long-press on Amethyst when enabling JIT in StikDebug.");
             [PLLogOutputView handleExitCode:1];
             return 1;
         }
@@ -226,11 +226,11 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
     const char *margv[1000];
 
     margv[++margc] = [NSString stringWithFormat:@"%@/bin/java", javaHome].UTF8String;
-    margv[++margc] = "-XstartOnFirstThread";
+    margv[++margc] = @"-XstartOnFirstThread";
     if (!launchJar) {
-        margv[++margc] = "-Djava.system.class.loader=net.kdt.pojavlaunch.PojavClassLoader";
+        margv[++margc] = @"-Djava.system.class.loader=net.kdt.pojavlaunch.PojavClassLoader";
     }
-    margv[++margc] = "-Xms128M";
+    margv[++margc] = @"-Xms128M";
     margv[++margc] = [NSString stringWithFormat:@"-Xmx%dM", allocmem].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Djava.library.path=%@/Frameworks", NSBundle.mainBundle.bundlePath].UTF8String;
     margv[++margc] = [NSString stringWithFormat:@"-Duser.dir=%@", gameDir].UTF8String;
@@ -264,7 +264,8 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
 
     // On iOS 26, use mirror mapped JIT by default
     if (@available(iOS 26.0, *)) {
-        margv[++margc] = "-XX:+MirrorMappedCodeCache";
+        // MirrorMappedCodeCache is not supported by Java 8 on this build.
+        // Keep iOS 26 JIT handling in native code, but do not pass the JVM flag.
     }
 
     // Disable Forge 1.16.x early progress window
@@ -326,7 +327,7 @@ int launchJVM(NSString *username, id launchTarget, int width, int height, int mi
 
     // Add Caciocavallo bootclasspath
     NSString *cacio_classpath = [NSString stringWithFormat:@"-Xbootclasspath/%s", isJava8 ? "p" : "a"];
-    NSString *cacio_libs_path = [NSString stringWithFormat:@"%@/libs_caciocavallo%s", NSBundle.mainBundle.bundlePath, isJava8 ? "" : "17"];
+    NSString *cacio_libs_path = [NSString stringWithFormat:@"%@/libs_caciocavallo%s", NSBundle.mainBundle.bundlePath, isJava8 ? @"" : @"17"];
     NSArray *files = [fm contentsOfDirectoryAtPath:cacio_libs_path error:nil];
     for(NSString *file in files) {
         if ([file hasSuffix:@".jar"]) {
